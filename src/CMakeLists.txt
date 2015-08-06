@@ -1,0 +1,7 @@
+aux_source_directory(. src_dir)
+include_directories(../include)
+link_directories(../lib)
+add_library(uvsdk STATIC ${src_dir})
+target_link_libraries(uvsdk curl crypto ssl rt jsoncpp z)
+#set_target_properties(uvsdk PROPERTIES output_name "libuvsdk")
+set_target_properties(uvsdk PROPERTIES OUTPUT_NAME "uvsdk")

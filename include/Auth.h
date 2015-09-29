@@ -1,5 +1,5 @@
-#ifndef _TENCENTYUN_QCLOUD_VIDEO_H_H_
-#define _TENCENTYUN_QCLOUD_VIDEO_H_H_
+#ifndef _TENCENTYUN_QCLOUD_AUTH_H_H_
+#define _TENCENTYUN_QCLOUD_AUTH_H_H_
 
 #include <iostream>
 #include <string>

@@ -72,7 +72,7 @@ public:
 	 * @param  string  magicContext  透传字段，需要用户设置回调url   
      * @return [type]                [description]
      */
-	int Video::upload(
+	int upload(
         const string &srcPath,
         const string &bucketName,
         const string &dstPath,
@@ -240,7 +240,7 @@ private:
             const string &bizAttr = "",
 			const string &title = "",
 			const string &desc = "",
-			const string &magicContext = ""
+			const string &magicContext = "",
             const string &session = "",
             const uint64_t sliceSize = 0
             );
@@ -268,7 +268,9 @@ private:
     int updateBase(
             const string &bucketName, 
             const string &path,
-            const string &biz_attr = ""
+            const string &biz_attr,
+			const string &title,
+			const string &desc
             );
 
     int statBase(

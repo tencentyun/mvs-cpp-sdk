@@ -623,11 +623,11 @@ int Video::listFolder(
                     const int num, 
                     const string &pattern,
                     const int order,
-                    const string &offset
+                    const string &context
         ) {
     string folderPath = validFolderPath(path);
     return listBase(bucketName, folderPath, num,
-            pattern, order, offset);
+            pattern, order, context);
 }
 
 int Video::prefixSearch(
@@ -636,11 +636,11 @@ int Video::prefixSearch(
                     const int num, 
                     const string &pattern,
                     const int order,
-                    const string &offset
+                    const string &context
         ) {
     string filePath = validFilePath(prefix);
     return listBase(bucketName, filePath, num,
-            pattern, order, offset);
+            pattern, order, context);
 }
 
 int Video::listBase(
@@ -649,19 +649,20 @@ int Video::listBase(
                     const int num, 
                     const string &pattern,
                     const int order,
-                    const string &offset
+                    const string &context
         ) {
     reset();
 
     string encodePath = videoUrlEncode(path);
     uint64_t expired = time(NULL) + EXPIRED_SECONDS;
     string url = generateResUrl(bucketName, encodePath); 
+	string encodeContext = videoUrlEncode(context);
 
     char queryStr[1024];
     snprintf(queryStr, sizeof(queryStr),
-            "?op=list&num=%d&pattern=%s&offset=%s&order=%d", 
+            "?op=list&num=%d&pattern=%s&context=%s&order=%d", 
             num, pattern.c_str(), 
-            offset.c_str(), order);
+            encodeContext.c_str(), order);
 
     url += queryStr;
 

@@ -249,6 +249,10 @@ int Video::sendRequest(
 
     }
 
+	if (isPost) {
+		list = (curl_slist_append(list, "Expect: "));
+	}
+
     curl_easy_setopt(
             _curl_handle, CURLOPT_WRITEFUNCTION, 
             post_callback);
@@ -265,7 +269,7 @@ int Video::sendRequest(
         retMsg = retJson["message"].asString();
     } else {
         retCode = VIDEO_NETWORK_ERROR;
-        retMsg = "net work err...";
+		retMsg = response_str;
     }
     
     return curl_ret;

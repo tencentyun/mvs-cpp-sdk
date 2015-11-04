@@ -165,7 +165,11 @@ string Video::generateResUrl(
     string url = "";
     char urlBytes[10240];
     snprintf(urlBytes, sizeof(urlBytes),
+#if __WORDSIZE == 64
             "%s%lu/%s%s",
+#else
+            "%s%llu/%s%s",
+#endif
             API_VIDEO_END_POINT.c_str(),
             APPID, 
             bucketName.c_str(), 
@@ -248,10 +252,14 @@ int Video::sendRequest(
                 _curl_handle, CURLOPT_HTTPHEADER, list);
 
     }
-
 	if (isPost) {
 		list = (curl_slist_append(list, "Expect: "));
 	}
+
+    curl_easy_setopt(
+            _curl_handle, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_easy_setopt(
+            _curl_handle, CURLOPT_SSL_VERIFYPEER, 1);
 
     curl_easy_setopt(
             _curl_handle, CURLOPT_WRITEFUNCTION, 
@@ -268,8 +276,13 @@ int Video::sendRequest(
         retCode = retJson["code"].asInt();
         retMsg = retJson["message"].asString();
     } else {
+        if (response_str.empty()) {
+            response_str = "connect failed!";
+        }
         retCode = VIDEO_NETWORK_ERROR;
 		retMsg = response_str;
+        retJson["code"] = retCode;
+        retJson["message"] = retMsg;
     }
     
     return curl_ret;
@@ -290,6 +303,8 @@ int Video::upload(
     if (ret != 0) {
         retCode = VIDEO_FILE_NOT_EXISTS;
         retMsg = "file not exist or can not be read...";
+        retJson["code"] = retCode;
+        retJson["message"] = retMsg;
         return retCode;
     }
 
@@ -367,6 +382,8 @@ int Video::upload_slice(
     if (ret != 0) {
         retCode = VIDEO_FILE_NOT_EXISTS;
         retMsg = "file not exist or can not be read...";
+        retJson["code"] = retCode;
+        retJson["message"] = retMsg;
         return retCode;
     }
 
@@ -437,7 +454,11 @@ int Video::upload_prepare(
             CURLFORM_COPYCONTENTS, "upload_slice",
             CURLFORM_END);
 
+#if __WORDSIZE == 64
     snprintf(buf, sizeof(buf), "%lu", fileSize);
+#else
+    snprintf(buf, sizeof(buf), "%llu", fileSize);
+#endif
     ret = curl_formadd(&firstitem, &lastitem,
             CURLFORM_COPYNAME, "filesize",
             CURLFORM_COPYCONTENTS, buf,
@@ -484,13 +505,11 @@ int Video::upload_prepare(
     }
 
     if (sliceSize > 0) {
-        if (sliceSize <= DEFAULT_SLICE_SIZE) {
-            snprintf(
-                buf, sizeof(buf), "%lu", sliceSize);
-        } else {
-            snprintf(
-                buf, sizeof(buf), "%lu", sliceSize);
-        }
+#if __WORDSIZE == 64
+        snprintf(buf, sizeof(buf), "%lu", sliceSize);
+#else
+        snprintf(buf, sizeof(buf), "%llu", sliceSize);
+#endif
 
         ret = curl_formadd(&firstitem, &lastitem,
                 CURLFORM_COPYNAME, "slice_size",
@@ -544,8 +563,11 @@ int Video::upload_data(
                 CURLFORM_COPYCONTENTS, "upload_slice",
                 CURLFORM_END);
 
-        snprintf(tmp_buf, sizeof(tmp_buf), 
-                "%lu", pos);
+#if __WORDSIZE == 64
+        snprintf(tmp_buf, sizeof(tmp_buf), "%lu", pos);
+#else
+        snprintf(tmp_buf, sizeof(tmp_buf), "%llu", pos);
+#endif
         ret = curl_formadd(&firstitem, &lastitem,
                 CURLFORM_COPYNAME, "offset",
                 CURLFORM_COPYCONTENTS, tmp_buf,
@@ -560,7 +582,7 @@ int Video::upload_data(
                 CURLFORM_COPYNAME, "filecontent",
                 CURLFORM_BUFFER, "data",
                 CURLFORM_BUFFERPTR, buf,
-                CURLFORM_BUFFERLENGTH, len,
+                CURLFORM_BUFFERLENGTH, (long)len,
                 CURLFORM_END);
 
         int retry_times = 0;
@@ -568,7 +590,6 @@ int Video::upload_data(
             sendRequest(
                     url, 1, &headers, 
                     NULL, firstitem);
-            dump_res();
             if (retCode == 0) {
                 break;
             }
@@ -615,7 +636,6 @@ int Video::createFolder(
     }
     Json::FastWriter writer;
     string data = writer.write(reqJson);
-    //cout << "reqData:" << data << endl;
 
     sendRequest(url, 1, &headers, data.c_str());
     return retCode;
@@ -670,8 +690,6 @@ int Video::listBase(
 
     url += queryStr;
 
-    //cout << "url:" << url << endl;
-
     string sign = 
         Auth::appSign(
                 APPID, SECRET_ID, SECRET_KEY,
@@ -717,6 +735,8 @@ int Video::updateBase(
     if (path == "/") {
         retCode = VIDEO_PARAMS_ERROR;
         retMsg = "can not update bucket use api! go to http://console.qcloud.com/uvs/vbucket to operate bucket";
+        retJson["code"] = retCode;
+        retJson["message"] = retMsg;
         return retCode;
     }
 
@@ -746,7 +766,6 @@ int Video::updateBase(
     }
     Json::FastWriter writer;
     string data = writer.write(reqJson);
-    //cout << "reqData:" << data << endl;
 
     sendRequest(url, 1, &headers, data.c_str());
     return retCode;
@@ -783,8 +802,6 @@ int Video::statBase(
             "?op=stat");
 
     url += queryStr;
-
-    //cout << "url:" << url << endl;
 
     string sign = 
         Auth::appSign(
@@ -824,6 +841,8 @@ int Video::delBase(
     if (path == "/") {
         retCode = VIDEO_PARAMS_ERROR;
         retMsg = "can not delete bucket use api! go to http://console.qcloud.com/uvs/vbucket to operate bucket";
+        retJson["code"] = retCode;
+        retJson["message"] = retMsg;
         return retCode;
     }
 
@@ -844,7 +863,6 @@ int Video::delBase(
     reqJson["op"] = "delete";
     Json::FastWriter writer;
     string data = writer.write(reqJson);
-    //cout << "reqData:" << data << endl;
 
     sendRequest(url, 1, &headers, data.c_str());
     return retCode;

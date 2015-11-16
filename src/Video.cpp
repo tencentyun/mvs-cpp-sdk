@@ -256,6 +256,8 @@ int Video::sendRequest(
 		list = (curl_slist_append(list, "Expect: "));
 	}
 
+	list = curl_slist_append(list, "Connection: Keep-Alive");
+	
     curl_easy_setopt(
             _curl_handle, CURLOPT_SSL_VERIFYHOST, 0);
     curl_easy_setopt(
@@ -270,7 +272,7 @@ int Video::sendRequest(
 
     curl_ret = curl_easy_perform(_curl_handle);
     curl_slist_free_all(list);
-
+	
     Json::Reader reader;
     if (reader.parse(response_str, retJson)) {
         retCode = retJson["code"].asInt();

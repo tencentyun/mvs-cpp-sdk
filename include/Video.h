@@ -26,6 +26,12 @@ public:
     static const int MIN_SLICE_FILE_SIZE;
     static const int MAX_RETRY_TIMES;
     
+    static const int eMaskBizAttr;
+    static const int eMaskTitle;
+    static const int eMaskDesc;
+    static const int eMaskVideoCover;
+    static const int eMaskAll;
+    
     const uint64_t APPID;
     const string SECRET_ID;
     const string SECRET_KEY;
@@ -76,6 +82,7 @@ public:
         const string &srcPath,
         const string &bucketName,
         const string &dstPath,
+        const string &videoCover = "",
         const string &bizAttr = "",
 		const string &title = "",
 		const string &desc = "",
@@ -96,6 +103,7 @@ public:
             const string &srcPath,
             const string &bucketName,
             const string &dstPath,
+            const string &videoCover = "",
             const string &bizAttr = "",
 			const string &title = "",
 			const string &desc = "",
@@ -178,6 +186,7 @@ public:
     int update(
             const string &bucketName, 
             const string &path,
+            const string &videoCover = "",
             const string &biz_attr = "",
 			const string &title = "",
 			const string &desc = ""
@@ -237,6 +246,7 @@ private:
             const string &sha,
             const string &sign,
             const string &url,
+            const string &videoCover = "",
             const string &bizAttr = "",
 			const string &title = "",
 			const string &desc = "",
@@ -269,6 +279,7 @@ private:
             const string &bucketName, 
             const string &path,
             const string &biz_attr,
+            const string &videoCover,
 			const string &title,
 			const string &desc
             );

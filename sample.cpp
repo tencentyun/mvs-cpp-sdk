@@ -26,6 +26,8 @@ int main () {
     string strFoldername = "/test_cpp/";
 	string strFilepath = "/test_cpp/test.mp4";
 	string strFilepath_slice = "/test_cpp/test_slice.mp4";
+    
+    string strCoverUrl = "http://ceshi-1000027.file.myqcloud.com/1.jpg";
 	
     api.createFolder(
             bucketName, strFoldername);
@@ -59,7 +61,7 @@ int main () {
 	//test upload
     api.upload(
             "../test.mp4", bucketName, 
-            strFilepath);
+            strFilepath, strCoverUrl);
     api.dump_res();
 
     //test upload_slice
@@ -69,7 +71,7 @@ int main () {
 	 
     //test update
     api.update(
-            bucketName, strFilepath, "attr","title","desc");
+            bucketName, strFilepath, strCoverUrl, "attr","title","desc");
     api.dump_res();
 
     //test stat
